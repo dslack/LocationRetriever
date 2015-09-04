@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link href="../bower_components/ionic/release/css/ionic.min.css">
+    <script src="../bower_components/ionic/release/js/ionic.bundle.js"></script>
+    <script src="../src/location-retriever.js"></script>
+
+    <script>
+        angular.module('test', ['ionic', 'location-retriever'])
+                .controller('TestController', function($scope, LocationRetriever){
+                    $scope.getLocation = function(){
+                        LocationRetriever.retrieveLocation({maxRepeat:10, accuracy:200}).then(function(position) {
+                            $scope.position = position;
+                        }).catch(function(err){
+                            $scope.error = err;
+                        });
+                    }
+                })
+    </script>
+</head>
+<body ng-app="test">
+    <div ng-controller="TestController">
+        <button ng-click="getLocation()" class="button button-balanced">Get Location</button>
+
+        <div class="assertive-bg" ng-if="error">{{error.message}}</div>
+        <ion-list ng-if="position">
+            <ion-item>Latitude: {{position.coords.latitude}}</ion-item>
+            <ion-item class="item">Longitude: {{position.coords.longitude}}</ion-item>
+            <ion-item class="item" ng-hide="limited">Altitude: {{position.coords.altitude}}</ion-item>
+            <ion-item class="item">Accuracy: {{position.coords.accuracy}} metres</ion-item>
+            <ion-item class="item" ng-hide="limited">Altitude Accuracy: {{position.coords.altitudeAccuracy}} metres</ion-item>
+            <ion-item class="item" ng-hide="limited">Heading: {{position.coords.heading}} degress</ion-item>
+            <ion-item class="item" ng-hide="limited">Speed: {{position.coords.speed}} m/s</ion-item>
+        </ion-list>
+
+    </div>
+</body>
+</html>
