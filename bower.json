@@ -1,6 +1,6 @@
 {
   "name": "LocationRetriever",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "authors": [
     "dslack@langui.com"
   ],
@@ -10,6 +10,9 @@
     "cordova",
     "location",
     "gps"
+  ],
+  "main": [
+    "src/*"
   ],
   "license": "MIT",
   "homepage": "www.langui.com",
