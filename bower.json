@@ -12,7 +12,7 @@
     "gps"
   ],
   "main": [
-    "src/*"
+    "src/location-retriever.js"
   ],
   "license": "MIT",
   "homepage": "www.langui.com",
