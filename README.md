@@ -1,0 +1,1 @@
+Location Retriever is an Ionic plugin that tries to retrieve the best possible GPS location.
