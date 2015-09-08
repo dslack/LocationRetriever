@@ -67,7 +67,7 @@
                         count += 1;
                         if (count >= opts.maxRepeat) {
                             closeWatch(ctx);
-                            reject({error:'repeats', msg:'Too many repetitions'});
+                            reject({code:999, message:'Too many repetitions'});
                         } else {
                             retrieveLocations(count, resolve, reject, opts, ctx);
                         }
