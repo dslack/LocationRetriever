@@ -2,6 +2,7 @@
     angular.module('location-retriever', ['ionic'])
         .factory('LocationRetriever', LocationRetriever);
 
+    /*@ngInject*/
     function LocationRetriever($q){
         var defOpts = {
             maxRepeat:5,
@@ -10,11 +11,18 @@
             enableHighAccuracy : true
         };
 
+        var service = navigator.geolocation;
+
         var api = {
-            retrieveLocation: retrieveLocation
+            retrieveLocation: retrieveLocation,
+            overrideService: overrideService
         };
 
         return api;
+
+        function overrideService(newService) {
+            service = newService;
+        }
 
         function retrieveLocation(options){
             var opts = angular.copy(defOpts);
@@ -35,8 +43,9 @@
         function startRetrieval(opts, resolve, reject) {
             var ctx = {};
             var firstTime = true;
-            ctx.watchId = navigator.geolocation.watchPosition(function(position){
-                    if (firstTime || (firstTime = false)) {
+            ctx.watchId = service.watchPosition(function(position){
+                    if (firstTime) {
+                        firstTime = false;
                         retrieveLocations(0, resolve, reject, opts, ctx);
                     }
                 }, function(err){
@@ -49,7 +58,7 @@
         }
 
         function retrieveLocations(count, resolve, reject, opts,ctx) {
-            navigator.geolocation.getCurrentPosition(function(position){
+            service.getCurrentPosition(function(position){
                     if (position.coords.accuracy <= opts.accuracy) {
                         closeWatch(ctx);
                         resolve(position);
@@ -74,7 +83,7 @@
         }
 
         function closeWatch(ctx) {
-            navigator.geolocation.clearWatch(ctx.watchId);
+            service.clearWatch(ctx.watchId);
         }
     }
 })();
