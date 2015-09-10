@@ -45,6 +45,7 @@
             var firstTime = true;
             ctx.watchId = service.watchPosition(function(position){
                     if (firstTime) {
+                        ctx.currentPosition = position;
                         firstTime = false;
                         retrieveLocations(0, resolve, reject, opts, ctx);
                     }
@@ -59,31 +60,36 @@
 
         function retrieveLocations(count, resolve, reject, opts,ctx) {
             service.getCurrentPosition(function(position){
-                    if (position.coords.accuracy <= opts.accuracy) {
+                if (position.coords.accuracy <= opts.accuracy) {
+                    closeWatch(ctx);
+                    resolve(position);
+                } else {
+                    //accuracy was too low... how many repeats have we done
+                    count += 1;
+                    ctx.currentPosition = checkPositions(position, ctx.currentPosition);
+                    if (count >= opts.maxRepeat) {
                         closeWatch(ctx);
-                        resolve(position);
+                        reject({code:999, message:'Too many repetitions', bestPosition:ctx.currentPosition});
                     } else {
-                        //accuracy was too low... how many repeats have we done
-                        count += 1;
-                        if (count >= opts.maxRepeat) {
-                            closeWatch(ctx);
-                            reject({code:999, message:'Too many repetitions'});
-                        } else {
-                            retrieveLocations(count, resolve, reject, opts, ctx);
-                        }
+                        retrieveLocations(count, resolve, reject, opts, ctx);
                     }
-                },
-                function(err){
-                    reject(err);
-                }, {
-                    timeout:opts.timeout,
-                    enableHighAccuracy: opts.enableHighAccuracy
                 }
-            );
+            },
+            function(err){
+                err.bestPosition = ctx.currentPosition;
+                reject(err);
+            }, {
+                timeout:opts.timeout,
+                enableHighAccuracy: opts.enableHighAccuracy
+            });
         }
 
         function closeWatch(ctx) {
             service.clearWatch(ctx.watchId);
+        }
+
+        function checkPositions(pos1, pos2) {
+            return pos1.coords.accuracy > pos2.coords.accuracy ? pos1 : pos2;
         }
     }
 })();
