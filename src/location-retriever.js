@@ -50,6 +50,7 @@
                         retrieveLocations(0, resolve, reject, opts, ctx);
                     }
                 }, function(err){
+                    err.bestPosition = null;
                     reject(err);
                 },{
                     timeout:opts.timeout,
@@ -68,16 +69,20 @@
                     count += 1;
                     ctx.currentPosition = checkPositions(position, ctx.currentPosition);
                     if (count >= opts.maxRepeat) {
+
                         closeWatch(ctx);
-                        reject({code:999, message:'Too many repetitions', bestPosition:ctx.currentPosition});
+                        var err = {code:999, message:'Too many repetitions', bestPosition:ctx.currentPosition}
+                        reject(err);
                     } else {
                         retrieveLocations(count, resolve, reject, opts, ctx);
                     }
                 }
             },
             function(err){
+                closeWatch(ctx);
                 err.bestPosition = ctx.currentPosition;
                 reject(err);
+
             }, {
                 timeout:opts.timeout,
                 enableHighAccuracy: opts.enableHighAccuracy
